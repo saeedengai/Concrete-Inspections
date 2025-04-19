@@ -1,0 +1,909 @@
+%pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu121
+
+!git clone https://github.com/facebookresearch/segment-anything-2.git
+%cd segment-anything-2
+%pip install -e .
+
+%pip install --upgrade pip
+
+%pip install opencv-python==4.10.0.84 pycocotools==2.0.8 matplotlib==3.9.2 supervision==0.25.1 scikit-learn==1.5.2 pillow==11.0.0
+
+%pip install wget
+
+%pip uninstall -y segment-anything-2
+%pip install -e .
+
+!pip list | findstr SAM
+
+import os
+sam2_dir = "D:/College/George Brown/industry project/Concrete Dataset Sample/segment-anything-2"
+os.chdir(sam2_dir)
+print("Current directory:", os.getcwd())
+
+# Uninstall any existing SAM-2 package
+!pip uninstall -y SAM-2
+
+# Install SAM2
+%pip install -e .
+
+!pip show SAM-2
+
+try:
+    from sam2.build_sam import build_sam2
+    print("SAM2 module imported successfully!")
+except ImportError as e:
+    print(f"ImportError: {e}")
+
+import os
+
+yaml_path = "D:/College/George Brown/industry project/Concrete Dataset Sample/segment-anything-2/sam2_hiera_b+.yaml"
+print("YAML exists:", os.path.exists(yaml_path))
+
+if os.path.exists(yaml_path):
+    with open(yaml_path, 'r') as f:
+        content = f.readlines()
+        print("\nYAML content (first 10 lines or less):")
+        for i, line in enumerate(content[:10], 1):
+            print(f"Line {i}: {line.strip()}")
+else:
+    print("YAML file missing!")
+
+
+import torch
+
+checkpoint_path = "D:/College/George Brown/industry project/Concrete Dataset Sample/segment-anything-2/checkpoints/sam2_hiera_base_plus.pt"
+try:
+    sd = torch.load(checkpoint_path, map_location="cpu", weights_only=True)["model"]
+    print("Checkpoint keys:")
+    for key in sorted(sd.keys()):
+        print(f"  {key}")
+except Exception as e:
+    print(f"Error loading checkpoint: {e}")
+
+import torch
+
+checkpoint_path = "D:/College/George Brown/industry project/Concrete Dataset Sample/segment-anything-2/checkpoints/sam2_hiera_base_plus.pt"
+try:
+    sd = torch.load(checkpoint_path, map_location="cpu", weights_only=True)["model"]
+    print("Checkpoint keys (all):")
+    keys = sorted(sd.keys())
+    for key in keys:
+        print(f"  {key}")
+    # Highlight specific keys
+    print("\nKeys containing 'mask_decoder', 'prompt_encoder', or 'obj_ptr':")
+    for key in keys:
+        if any(term in key for term in ['mask_decoder', 'prompt_encoder', 'obj_ptr', 'no_obj']):
+            print(f"  {key}")
+except Exception as e:
+    print(f"Error loading checkpoint: {e}")
+
+
+import sam2
+import os
+from pathlib import Path
+
+# Path to SAM2 repository
+sam2_path = "D:/College/George Brown/industry project/Concrete Dataset Sample/segment-anything-2/"
+
+# List files in sam2.modeling
+modeling_path = os.path.join(sam2_path, "sam2", "modeling")
+print("Files in sam2.modeling:")
+for f in os.listdir(modeling_path):
+    print(f"  {f}")
+
+# Try importing possible PromptEncoder locations
+possible_modules = [
+    "sam2.modeling.sam2_utils",
+    "sam2.modeling.prompt_encoder",
+    "sam2.modeling.sam_prompt_encoder",
+    "sam2.modeling",
+]
+
+for module in possible_modules:
+    try:
+        mod = __import__(module, fromlist=["PromptEncoder"])
+        if hasattr(mod, "PromptEncoder"):
+            print(f"Found PromptEncoder in {module}")
+        else:
+            print(f"No PromptEncoder in {module}")
+    except ImportError as e:
+        print(f"Error importing {module}: {e}")
+
+# Check sam2_utils specifically
+try:
+    from sam2.modeling import sam2_utils
+    print("\nContents of sam2.modeling.sam2_utils:")
+    print(dir(sam2_utils))
+except ImportError as e:
+    print(f"Error importing sam2.modeling.sam2_utils: {e}")
+
+import os
+from pathlib import Path
+
+# Path to SAM2 repository
+sam2_path = "D:/College/George Brown/industry project/Concrete Dataset Sample/segment-anything-2/"
+
+# Function to search for PromptEncoder in Python files
+def search_prompt_encoder(root_dir):
+    print("Searching for PromptEncoder class...")
+    for root, _, files in os.walk(root_dir):
+        for file in files:
+            if file.endswith(".py"):
+                file_path = os.path.join(root, file)
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        lines = f.readlines()
+                        for i, line in enumerate(lines):
+                            if 'class PromptEncoder' in line:
+                                print(f"Found PromptEncoder in {file_path}, line {i+1}: {line.strip()}")
+                            # Also check for similar classes
+                            if 'class ' in line and 'Encoder' in line:
+                                print(f"Possible encoder class in {file_path}, line {i+1}: {line.strip()}")
+                except Exception as e:
+                    print(f"Error reading {file_path}: {e}")
+    print("Search complete.")
+
+# Run search
+search_prompt_encoder(sam2_path)
+
+# Check sam2.modeling.sam contents
+sam_path = os.path.join(sam2_path, "sam2", "modeling", "sam")
+print("\nFiles in sam2.modeling.sam:")
+if os.path.exists(sam_path):
+    for f in os.listdir(sam_path):
+        print(f"  {f}")
+else:
+    print("  sam directory not found")
+
+# Check sam2_base.py specifically
+sam2_base_path = os.path.join(sam2_path, "sam2", "modeling", "sam2_base.py")
+if os.path.exists(sam2_base_path):
+    print("\nChecking sam2_base.py for PromptEncoder...")
+    with open(sam2_base_path, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+        for i, line in enumerate(lines):
+            if 'PromptEncoder' in line:
+                print(f"PromptEncoder reference in sam2_base.py, line {i+1}: {line.strip()}")
+            if 'class ' in line and 'Encoder' in line:
+                print(f"Encoder class in sam2_base.py, line {i+1}: {line.strip()}")
+else:
+    print("sam2_base.py not found")
+
+with open("D:/College/George Brown/industry project/Concrete Dataset Sample/segment-anything-2/sam2/modeling/sam2_utils.py", 'r') as f:
+    lines = f.readlines()
+    for i, line in enumerate(lines):
+        if 'class MLP' in line:
+            print(f"Line {i+1}: {line.strip()}")
+            print("".join(lines[i:i+20]))  # Print next 20 lines for context
+
+with open("D:/College/George Brown/industry project/Concrete Dataset Sample/segment-anything-2/sam2/modeling/sam/mask_decoder.py", 'r') as f:
+    lines = f.readlines()
+    for i, line in enumerate(lines):
+        if 'class MaskDecoder' in line:
+            print(f"Line {i+1}: {line.strip()}")
+            print("".join(lines[i:i+20]))  # Print next 20 lines for context
+
+with open("D:/College/George Brown/industry project/Concrete Dataset Sample/segment-anything-2/sam2/modeling/sam2_base.py", 'r') as f:
+    lines = f.readlines()
+    for i, line in enumerate(lines):
+        if 'class SAM2Base' in line:
+            print(f"Line {i+1}: {line.strip()}")
+            print("".join(lines[i:i+20]))  # Print next 20 lines for context
+
+with open("D:/College/George Brown/industry project/Concrete Dataset Sample/segment-anything-2/sam2/modeling/sam2_base.py", 'r') as f:
+    lines = f.readlines()
+    found_init = False
+    for i, line in enumerate(lines):
+        if 'def __init__(' in line and 'SAM2Base' in lines[i-1]:
+            found_init = True
+            print(f"Line {i+1}: {line.strip()}")
+        if found_init:
+            print(f"Line {i+1}: {line.strip()}")
+            if '):' in line:
+                break
+    print("\nSearching for prompt_encoder and mask_decoder initialization:")
+    for i, line in enumerate(lines):
+        if any(x in line for x in ['prompt_encoder', 'mask_decoder', 'obj_ptr']):
+            print(f"Line {i+1}: {line.strip()}")
+
+with open("D:/College/George Brown/industry project/Concrete Dataset Sample/segment-anything-2/sam2/modeling/sam2_base.py", 'r') as f:
+    lines = f.readlines()
+    print("Searching for mask_decoder initialization:")
+    for i, line in enumerate(lines):
+        if 'mask_decoder =' in line or 'MaskDecoder(' in line:
+            print(f"Line {i+1}: {line.strip()}")
+        if 'pred_obj_scores' in line:
+            print(f"Line {i+1}: {line.strip()}")
+
+import os
+
+modeling_dir = "D:/College/George Brown/industry project/Concrete Dataset Sample/segment-anything-2/sam2/modeling"
+print("Searching for MaskDecoder in:", modeling_dir)
+
+for root, dirs, files in os.walk(modeling_dir):
+    for file in files:
+        if file.endswith(".py"):
+            file_path = os.path.join(root, file)
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    lines = f.readlines()
+                    for i, line in enumerate(lines):
+                        if 'class MaskDecoder(' in line:
+                            print(f"Found MaskDecoder in {file_path}, Line {i+1}: {line.strip()}")
+                            # Print __init__
+                            found_init = False
+                            for j in range(i, len(lines)):
+                                if 'def __init__(' in lines[j]:
+                                    found_init = True
+                                    print(f"Line {j+1}: {lines[j].strip()}")
+                                if found_init:
+                                    print(f"Line {j+1}: {lines[j].strip()}")
+                                    if '):' in lines[j]:
+                                        found_init = False
+                                        break
+                                if any(x in lines[j] for x in ['conv_s0', 'conv_s1', 'pred_obj_score_head', 'obj_ptr_proj']):
+                                    print(f"Line {j+1}: {lines[j].strip()}")
+            except Exception as e:
+                print(f"Error reading {file_path}: {e}")
+
+with open("D:/College/George Brown/industry project/Concrete Dataset Sample/segment-anything-2/sam2/modeling/sam/mask_decoder.py", 'r') as f:
+    lines = f.readlines()
+    print("Searching for MaskDecoder components:")
+    for i, line in enumerate(lines):
+        if any(x in line for x in ['conv_s0', 'conv_s1', 'pred_obj_score_head', 'obj_ptr_proj']):
+            print(f"Line {i+1}: {line.strip()}")
+        if 'MaskDecoder(nn.Module):' in line:
+            print(f"Line {i+1}: {line.strip()}")
+
+with open("D:/College/George Brown/industry project/Concrete Dataset Sample/segment-anything-2/sam2/modeling/sam2_base.py", 'r') as f:
+    lines = f.readlines()
+    print("Searching for obj_ptr_proj:")
+    for i, line in enumerate(lines):
+        if 'obj_ptr_proj' in line:
+            print(f"Line {i+1}: {line.strip()}")
+        if 'use_obj_ptrs_in_encoder' in line:
+            print(f"Line {i+1}: {line.strip()}")
+
+import os
+
+yaml_path = "D:/College/George Brown/industry project/Concrete Dataset Sample/segment-anything-2/sam2_hiera_b+.yaml"
+yaml_content = """# @package _global_
+
+# Model
+model:
+  _target_: sam2.modeling.sam2_base.SAM2Base
+  image_encoder:
+    _target_: sam2.modeling.backbones.image_encoder.ImageEncoder
+    scalp: 1
+    trunk:
+      _target_: sam2.modeling.backbones.hieradet.Hiera
+      embed_dim: 112
+      num_heads: 2
+    neck:
+      _target_: sam2.modeling.backbones.image_encoder.FpnNeck
+      position_encoding:
+        _target_: sam2.modeling.position_encoding.PositionEmbeddingSine
+        num_pos_feats: 256
+        normalize: true
+        scale: null
+        temperature: 10000
+      d_model: 256
+      backbone_channel_list: [896, 448, 224, 112]
+      fpn_top_down_levels: [2, 3]
+      fpn_interp_model: nearest
+  memory_attention:
+    _target_: sam2.modeling.memory_attention.MemoryAttention
+    d_model: 256
+    pos_enc_at_input: true
+    layer:
+      _target_: sam2.modeling.memory_attention.MemoryAttentionLayer
+      activation: relu
+      dim_feedforward: 2048
+      dropout: 0.1
+      pos_enc_at_attn: false
+      self_attention:
+        _target_: sam2.modeling.sam.transformer.RoPEAttention
+        rope_theta: 10000.0
+        feat_sizes: [64, 64]
+        embedding_dim: 256
+        num_heads: 1
+        downsample_rate: 1
+        dropout: 0.1
+      d_model: 256
+      pos_enc_at_cross_attn_keys: true
+      pos_enc_at_cross_attn_queries: false
+      cross_attention:
+        _target_: sam2.modeling.sam.transformer.RoPEAttention
+        rope_theta: 10000.0
+        feat_sizes: [64, 64]
+        rope_k_repeat: true
+        embedding_dim: 256
+        num_heads: 1
+        downsample_rate: 1
+        dropout: 0.1
+        kv_in_dim: 64
+    num_layers: 4
+  memory_encoder:
+    _target_: sam2.modeling.memory_encoder.MemoryEncoder
+    out_dim: 64
+    position_encoding:
+      _target_: sam2.modeling.position_encoding.PositionEmbeddingSine
+      num_pos_feats: 64
+      normalize: true
+      scale: null
+      temperature: 10000
+    mask_downsampler:
+      _target_: sam2.modeling.memory_encoder.MaskDownSampler
+      kernel_size: 3
+      stride: 2
+      padding: 1
+    fuser:
+      _target_: sam2.modeling.memory_encoder.Fuser
+      layer:
+        _target_: sam2.modeling.memory_encoder.CXBlock
+        dim: 256
+        kernel_size: 7
+        padding: 3
+        layer_scale_init_value: 1e-6
+        use_dwconv: true
+      num_layers: 2
+  num_maskmem: 7
+  image_size: 1024
+  backbone_stride: 16
+  sigmoid_scale_for_mem_enc: 1.0
+  sigmoid_bias_for_mem_enc: 0.0
+  binarize_mask_from_pts_for_mem_enc: false
+  use_mask_input_as_output_without_sam: false
+  max_cond_frames_in_attn: -1
+  directly_add_no_mem_embed: false
+  use_high_res_features_in_sam: true
+  multimask_output_in_sam: true
+  pred_obj_scores: true
+  pred_obj_scores_mlp: true
+  use_obj_ptrs_in_encoder: true
+  use_mlp_for_obj_ptr_proj: true
+"""
+
+# Write YAML file
+with open(yaml_path, 'w') as f:
+    f.write(yaml_content)
+print("Updated sam2_hiera_b+.yaml")
+
+# Verify content
+with open(yaml_path, 'r') as f:
+    content = f.readlines()
+    print("\nYAML content (last 15 lines):")
+    for i, line in enumerate(content[-15:], 1):
+        print(f"Line {i}: {line.strip()}")
+
+import torch
+import hydra
+from hydra.core.global_hydra import GlobalHydra
+from omegaconf import OmegaConf
+from hydra.utils import instantiate
+
+# Clear Hydra instance
+GlobalHydra.instance().clear()
+
+# Load config
+model_cfg = "D:/College/George Brown/industry project/Concrete Dataset Sample/segment-anything-2/sam2_hiera_b+.yaml"
+
+try:
+    cfg = OmegaConf.load(model_cfg)
+    print("Config loaded successfully!")
+    OmegaConf.resolve(cfg)
+    print("Config resolved successfully!")
+
+    # Inspect model config
+    print("Model config:", cfg.get('model', 'No model key found'))
+
+    # Instantiate model
+    model = instantiate(cfg.model, _recursive_=True)
+    print("Model instantiated, type:", type(model))
+
+    # Try loading checkpoint
+    checkpoint_path = "D:/College/George Brown/industry project/Concrete Dataset Sample/segment-anything-2/checkpoints/sam2_hiera_base_plus.pt"
+    sd = torch.load(checkpoint_path, map_location="cpu", weights_only=True)["model"]
+
+    try:
+        missing_keys, unexpected_keys = model.load_state_dict(sd, strict=True)
+        print("Checkpoint loaded successfully!")
+        print("Missing keys:", missing_keys)
+        print("Unexpected keys:", unexpected_keys)
+    except Exception as e:
+        # This catches errors specifically from load_state_dict
+        print(f"Error during load_state_dict: {e}")
+
+except Exception as e:
+    # This catches errors from the outer try block (e.g., file not found, config issues)
+    print(f"Error: {e}")
+
+import torch
+from sam2.build_sam import build_sam2
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+checkpoint_path = "D:/College/George Brown/industry project/Concrete Dataset Sample/segment-anything-2/checkpoints/sam2_hiera_base_plus.pt"
+model_cfg = "D:/College/George Brown/industry project/Concrete Dataset Sample/segment-anything-2/sam2_hiera_b+.yaml"
+
+try:
+    sam2_model = build_sam2(model_cfg, checkpoint_path, device=device)
+    print("SAM2 model loaded successfully!")
+except Exception as e:
+    print(f"Error: {e}")
+
+import os
+import torch
+import hydra
+from hydra import initialize, compose
+from sam2.build_sam import build_sam2
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+checkpoint_path = "D:/College/George Brown/industry project/Concrete Dataset Sample/segment-anything-2/checkpoints/sam2_hiera_base_plus.pt"
+model_cfg = "sam2_hiera_b+.yaml"
+config_dir = "segment-anything-2"  # Relative path to directory containing YAML
+
+try:
+    # Initialize Hydra with relative config path
+    with initialize(config_path=config_dir, version_base=None):
+        # Load the configuration
+        cfg = compose(config_name=model_cfg)
+        print("Hydra config loaded successfully!")
+        
+        # Build SAM2 model
+        sam2_model = build_sam2(model_cfg, checkpoint_path, device=device)
+        print("SAM2 model loaded successfully!")
+except Exception as e:
+    print(f"Error: {e}")
+
+
+import os
+import cv2
+import numpy as np
+import torch
+from torch.utils.data import Dataset, DataLoader
+from pycocotools.coco import COCO
+from sam2.build_sam import build_sam2
+from sam2.sam2_image_predictor import SAM2ImagePredictor
+from torchvision import transforms
+from sklearn.metrics import f1_score, precision_score, recall_score
+import random
+import supervision as sv
+from PIL import Image
+import hydra
+from hydra import initialize, compose
+from hydra.core.global_hydra import GlobalHydra
+import matplotlib
+# Set non-interactive backend for matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from datetime import datetime
+import warnings
+import re
+
+# Suppress deprecation warnings
+try:
+    warnings.filterwarnings("ignore", category=DeprecationWarning)
+except AttributeError as e:
+    print(f"Warning: Could not suppress deprecation warnings: {e}")
+
+# Set random seed for reproducibility
+torch.manual_seed(42)
+np.random.seed(42)
+random.seed(42)
+
+# Function to sanitize filenames
+def sanitize_filename(filename):
+    # Replace invalid characters with underscores
+    return re.sub(r'[^\w\-\.]', '_', filename)
+
+# Dataset class for COCO segmentation
+class COCODataset(Dataset):
+    def __init__(self, root_dir, annotation_file, transform=None):
+        self.root_dir = root_dir
+        self.transform = transform
+        self.coco = COCO(annotation_file)
+        self.image_ids = self.coco.getImgIds()
+        self.cat_ids = self.coco.getCatIds()
+
+    def __len__(self):
+        return len(self.image_ids)
+
+    def __getitem__(self, idx):
+        img_id = self.image_ids[idx]
+        img_info = self.coco.loadImgs(img_id)[0]
+        img_path = os.path.join(self.root_dir, img_info['file_name'])
+        image = cv2.imread(img_path)
+        if image is None:
+            print(f"Failed to load image: {img_path}")
+            return None
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        ann_ids = self.coco.getAnnIds(imgIds=img_id, catIds=self.cat_ids, iscrowd=None)
+        anns = self.coco.loadAnns(ann_ids)
+        
+        masks = []
+        for ann in anns:
+            mask = self.coco.annToMask(ann)
+            masks.append(mask)
+        if masks:
+            mask = np.sum(masks, axis=0).clip(0, 1).astype(np.uint8)
+        else:
+            mask = np.zeros((img_info['height'], img_info['width']), dtype=np.uint8)
+        
+        # Debug: Log mask statistics
+        print(f"Image {img_info['file_name']}: Mask unique values: {np.unique(mask)}, Shape: {mask.shape}")
+
+        # Generate prompt (multiple points or box)
+        if np.any(mask):
+            if random.random() < 0.5:
+                # Multiple point prompts (up to 3 points)
+                y, x = np.where(mask > 0)
+                if len(x) == 0:
+                    print(f"Warning: Empty mask for {img_info['file_name']}")
+                    prompt = {'type': 'point', 'data': np.array([[0, 0]]), 'label': np.array([0])}
+                else:
+                    num_points = min(3, len(x))
+                    indices = random.sample(range(len(x)), num_points)
+                    points = np.array([[x[i], y[i]] for i in indices])
+                    labels = np.ones(num_points, dtype=np.int32)
+                    prompt = {'type': 'point', 'data': points, 'label': labels}
+            else:
+                # Box prompt
+                y, x = np.where(mask > 0)
+                if len(x) == 0:
+                    print(f"Warning: Empty mask for {img_info['file_name']}")
+                    prompt = {'type': 'point', 'data': np.array([[0, 0]]), 'label': np.array([0])}
+                else:
+                    x_min, x_max = x.min(), x.max()
+                    y_min, y_max = y.min(), y.max()
+                    prompt = {'type': 'box', 'data': np.array([[x_min, y_min, x_max, y_max]])}
+        else:
+            prompt = {'type': 'point', 'data': np.array([[0, 0]]), 'label': np.array([0])}
+        
+        print(f"Prompt for {img_info['file_name']}: {prompt['type']}, Data: {prompt['data']}")
+
+        if self.transform:
+            image_pil = Image.fromarray(image)
+            mask_pil = Image.fromarray(mask)
+            image_pil, mask_pil = self.transform(image_pil, mask_pil)
+            image = image_pil
+            mask = mask_pil
+
+        return image, mask, prompt, img_info['file_name']
+
+# Custom collate function to preserve NumPy arrays for prompts
+def custom_collate_fn(batch):
+    # Filter out None items
+    batch = [item for item in batch if item is not None]
+    if not batch:
+        return None
+    
+    images, masks, prompts, fnames = zip(*batch)
+    
+    # Stack images and masks as tensors
+    images = torch.stack(images)
+    masks = torch.stack(masks)
+    
+    # Keep prompts as list to preserve NumPy arrays
+    return images, masks, prompts, fnames
+
+# Data augmentation transforms
+def get_transform(augmentation=False):
+    if augmentation:
+        transform = transforms.Compose([
+            transforms.RandomHorizontalFlip(p=0.5),
+            transforms.RandomRotation(degrees=15),
+            transforms.ColorJitter(brightness=0.2, contrast=0.2),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        ])
+    else:
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        ])
+    
+    def dual_transform(img, mask):
+        img = transform(img)
+        # Ensure mask is binary uint8 [0, 1]
+        mask = np.array(mask, dtype=np.uint8)
+        mask = mask.clip(0, 1)
+        mask = torch.from_numpy(mask).float()  # Convert to float tensor for training
+        print(f"Transformed mask unique values: {torch.unique(mask)}, Shape: {mask.shape}")
+        return img, mask
+    return dual_transform
+
+# Function to evaluate prompt strategy
+def evaluate_prompt_strategy(predictor, data_loader, prompt_type, device, output_dir=None):
+    predictor.model.eval()
+    ious, precisions, recalls, f1s = [], [], [], []
+    
+    with torch.no_grad():
+        for image, gt_mask, prompt, fname in data_loader:
+            if image is None:
+                continue
+            image = image.to(device)
+            gt_mask = gt_mask.to(device).squeeze().float()  # Ensure float for consistency
+            gt_mask_np = gt_mask.cpu().numpy().astype(np.uint8)
+            gt_mask_np = (gt_mask_np > 0).astype(np.uint8)  # Ensure binary
+            
+            # Debug: Log mask stats
+            print(f"Image {fname[0]}: gt_mask unique: {np.unique(gt_mask_np)}, Shape: {gt_mask_np.shape}")
+            
+            predictor.set_image(image[0].permute(1, 2, 0).cpu().numpy())
+            masks, scores, _ = predictor.predict(
+                point_coords=prompt[0]['data'] if prompt[0]['type'] == 'point' else None,
+                point_labels=prompt[0]['label'] if prompt[0]['type'] == 'point' else None,
+                box=prompt[0]['data'][0] if prompt[0]['type'] == 'box' else None,
+                multimask_output=False
+            )
+            
+            pred_mask = masks[0].astype(np.uint8)
+            
+            print(f"Image {fname[0]}: pred_mask unique: {np.unique(pred_mask)}, Shape: {pred_mask.shape}")
+            
+            intersection = np.logical_and(gt_mask_np, pred_mask).sum()
+            union = np.logical_or(gt_mask_np, pred_mask).sum()
+            iou = intersection / union if union > 0 else 0
+            ious.append(iou)
+            
+            precision = precision_score(gt_mask_np.flatten(), pred_mask.flatten(), zero_division=0)
+            recall = recall_score(gt_mask_np.flatten(), pred_mask.flatten(), zero_division=0)
+            f1 = f1_score(gt_mask_np.flatten(), pred_mask.flatten(), zero_division=0)
+            
+            precisions.append(precision)
+            recalls.append(recall)
+            f1s.append(f1)
+            
+            if output_dir:
+                img = image[0].permute(1, 2, 0).cpu().numpy()
+                img = (img * np.array([0.229, 0.224, 0.225])[None, None, :] + np.array([0.485, 0.456, 0.406])[None, None, :]) * 255
+                img = img.astype(np.uint8)
+                mask_colored = np.zeros_like(img)
+                mask_colored[:, :, 1] = pred_mask * 255  # Green mask
+                overlay = cv2.addWeighted(img, 0.7, mask_colored, 0.3, 0)
+                
+                label = f"IoU: {iou:.2f}, F1: {f1:.2f}"
+                cv2.putText(overlay, label, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                
+                # Sanitize filename
+                sanitized_fname = sanitize_filename(fname[0])
+                output_path = os.path.join(output_dir, f"pred_{sanitized_fname}")
+                print(f"Saving masked image: {output_path}")
+                try:
+                    success = cv2.imwrite(output_path, cv2.cvtColor(overlay, cv2.COLOR_RGB2BGR))
+                    if success:
+                        print(f"Successfully saved masked image: {output_path}")
+                    else:
+                        print(f"Failed to save masked image: {output_path}")
+                except Exception as e:
+                    print(f"Error saving masked image {output_path}: {str(e)}")
+    
+    return {
+        'mean_iou': np.mean(ious) if ious else 0,
+        'mean_precision': np.mean(precisions) if precisions else 0,
+        'mean_recall': np.mean(recalls) if recalls else 0,
+        'mean_f1': np.mean(f1s) if f1s else 0
+    }
+
+# Training function
+def train_sam2(predictor, train_loader, optimizer, device, epochs, checkpoint_dir):
+    model = predictor.model
+    model.train()
+    
+    # Inspect model attributes
+    print("Model attributes:", dir(model))
+    has_encoder = hasattr(model, 'image_encoder')
+    print(f"Model has image_encoder: {has_encoder}")
+    
+    if not has_encoder:
+        raise AttributeError("Model missing image_encoder")
+    
+    for epoch in range(epochs):
+        epoch_loss = 0
+        for image, gt_mask, prompt, fname in train_loader:
+            if image is None:
+                continue
+            image = image.to(device)
+            gt_mask = gt_mask.to(device).squeeze().float()  # Ensure float for loss
+            prompt = prompt[0]  # Unpack batch
+            
+            print(f"Training: Image {fname[0]}")
+            print(f"Training: gt_mask unique: {torch.unique(gt_mask)}, Shape: {gt_mask.shape}")
+            print(f"Training: Prompt type: {prompt['type']}, Data: {prompt['data']}")
+            
+            optimizer.zero_grad()
+            
+            # Preprocess image
+            with torch.enable_grad():
+                img = image[0].permute(1, 2, 0).cpu().numpy() * np.array([0.229, 0.224, 0.225])[None, None, :] + np.array([0.485, 0.456, 0.406])[None, None, :]
+                img = torch.from_numpy(img).permute(2, 0, 1).float().to(device)[None]
+                
+                # Prepare prompts
+                if prompt['type'] == 'point':
+                    if isinstance(prompt['data'], torch.Tensor):
+                        point_coords = prompt['data'].float().to(device)[None]
+                        point_labels = prompt['label'].float().to(device)[None] if isinstance(prompt['label'], torch.Tensor) else torch.from_numpy(prompt['label']).float().to(device)[None]
+                    else:
+                        point_coords = torch.from_numpy(prompt['data']).float().to(device)[None]
+                        point_labels = torch.from_numpy(prompt['label']).float().to(device)[None]
+                    box = None
+                else:
+                    if isinstance(prompt['data'], torch.Tensor):
+                        box = prompt['data'].float().to(device)[None]
+                    else:
+                        box = torch.from_numpy(prompt['data'][0]).float().to(device)[None]
+                    point_coords = None
+                    point_labels = None
+                
+                # Use predictor.predict for training
+                try:
+                    predictor.set_image(img[0].permute(1, 2, 0).cpu().numpy())
+                    with torch.enable_grad():
+                        masks, scores, logits = predictor.predict(
+                            point_coords=point_coords[0].cpu().numpy() if point_coords is not None else None,
+                            point_labels=point_labels[0].cpu().numpy() if point_labels is not None else None,
+                            box=box[0].cpu().numpy() if box is not None else None,
+                            multimask_output=False
+                        )
+                    pred_mask = torch.from_numpy(masks[0]).float().to(device).requires_grad_(True)
+                    pred_mask = torch.sigmoid(pred_mask)
+                
+                except Exception as e:
+                    print(f"Predictor failed: {str(e)}")
+                    raise
+                
+                # Ensure pred_mask shape
+                if pred_mask.shape != gt_mask.shape:
+                    pred_mask = torch.nn.functional.interpolate(
+                        pred_mask[None, None], size=gt_mask.shape, mode='bilinear', align_corners=False
+                    ).squeeze()
+                
+                # Compute loss
+                loss = torch.nn.functional.binary_cross_entropy(pred_mask, gt_mask)
+            
+            loss.backward()
+            optimizer.step()
+            epoch_loss += loss.item()
+            
+            print(f"Training: pred_mask unique: {torch.unique(pred_mask > 0.5)}, Shape: {pred_mask.shape}, Loss: {loss.item():.4f}")
+        
+        avg_loss = epoch_loss / len(train_loader)
+        print(f"Epoch {epoch+1}/{epochs}, Loss: {avg_loss:.4f}")
+        
+        if checkpoint_dir:
+            checkpoint_path = os.path.join(checkpoint_dir, f"sam2_epoch_{epoch+1}.pt")
+            print(f"Saving checkpoint: {checkpoint_path}")
+            try:
+                torch.save(model.state_dict(), checkpoint_path)
+                print(f"Successfully saved checkpoint: {checkpoint_path}")
+            except Exception as e:
+                print(f"Error saving checkpoint {checkpoint_path}: {str(e)}")
+
+# Plot scores
+def plot_scores(metrics_dict, title, output_path):
+    metrics = ['mean_iou', 'mean_precision', 'mean_recall', 'mean_f1']
+    labels = ['IoU', 'Precision', 'Recall', 'F1']
+    values = [float(metrics_dict[m]) for m in metrics]
+    
+    plt.figure(figsize=(8, 6))
+    bars = plt.bar(labels, values, color=['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728'])
+    plt.title(title)
+    plt.ylim(0, 1)
+    
+    for bar in bars:
+        yval = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2, yval + 0.02, f"{yval:.2f}", ha='center', va='bottom')
+    
+    print(f"Saving plot: {output_path}")
+    try:
+        plt.savefig(output_path, bbox_inches='tight')
+        print(f"Successfully saved plot: {output_path}")
+    except Exception as e:
+        print(f"Error saving plot {output_path}: {str(e)}")
+    plt.close()
+
+def main():
+    dataset_root = "D:/College/George Brown/industry project/Concrete Dataset Sample/SAM2 dataset"
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    checkpoint_path = "D:/College/George Brown/industry project/Concrete Dataset Sample/segment-anything-2/checkpoints/sam2_hiera_base_plus.pt"
+    model_cfg = "sam2_hiera_b+.yaml"
+    config_dir = "segment-anything-2"
+    
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_root = os.path.join(dataset_root, f"outputs_{timestamp}")
+    os.makedirs(output_root, exist_ok=True)
+    val_output_dir = os.path.join(output_root, "val_predictions")
+    test_output_dir = os.path.join(output_root, "test_predictions")
+    checkpoint_dir = os.path.join(output_root, "checkpoints")
+    os.makedirs(val_output_dir, exist_ok=True)
+    os.makedirs(test_output_dir, exist_ok=True)
+    os.makedirs(checkpoint_dir, exist_ok=True)
+    
+    # Log output directories
+    print(f"Output root: {output_root}")
+    print(f"Validation predictions: {val_output_dir}")
+    print(f"Test predictions: {test_output_dir}")
+    print(f"Checkpoints: {checkpoint_dir}")
+    
+    # Clear Hydra global state
+    GlobalHydra.instance().clear()
+    
+    with initialize(config_path=config_dir, version_base=None):
+        cfg = compose(config_name=model_cfg)
+        print("Hydra config loaded successfully!")
+        
+        sam2_model = build_sam2(model_cfg, checkpoint_path, device=device)
+        predictor = SAM2ImagePredictor(sam2_model)
+        
+        train_dataset = COCODataset(
+            root_dir=os.path.join(dataset_root, "train"),
+            annotation_file=os.path.join(dataset_root, "train", "_annotations.coco.json"),
+            transform=get_transform(augmentation=False)
+        )
+        val_dataset = COCODataset(
+            root_dir=os.path.join(dataset_root, "valid"),
+            annotation_file=os.path.join(dataset_root, "valid", "_annotations.coco.json"),
+            transform=get_transform(augmentation=False)
+        )
+        test_dataset = COCODataset(
+            root_dir=os.path.join(dataset_root, "test"),
+            annotation_file=os.path.join(dataset_root, "test", "_annotations.coco.json"),
+            transform=get_transform(augmentation=False)
+        )
+        
+        train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True, num_workers=0, collate_fn=custom_collate_fn)
+        val_loader = DataLoader(val_dataset, batch_size=1, shuffle=False, num_workers=0, collate_fn=custom_collate_fn)
+        test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False, num_workers=0, collate_fn=custom_collate_fn)
+        
+        print("Evaluating prompt strategies on validation set...")
+        point_metrics = evaluate_prompt_strategy(predictor, val_loader, 'point', device, val_output_dir)
+        box_metrics = evaluate_prompt_strategy(predictor, val_loader, 'box', device, val_output_dir)
+        
+        print("Point Prompt Metrics:", point_metrics)
+        print("Box Prompt Metrics:", box_metrics)
+        
+        plot_scores(point_metrics, "Validation Point Prompt Metrics", os.path.join(output_root, "val_point_metrics.png"))
+        plot_scores(box_metrics, "Validation Box Prompt Metrics", os.path.join(output_root, "val_box_metrics.png"))
+        
+        best_prompt = 'point' if point_metrics['mean_f1'] > box_metrics['mean_f1'] else 'box'
+        print(f"Selected prompt strategy: {best_prompt}")
+        
+        print("\nTesting data augmentation...")
+        val_dataset_aug = COCODataset(
+            root_dir=os.path.join(dataset_root, "valid"),
+            annotation_file=os.path.join(dataset_root, "valid", "_annotations.coco.json"),
+            transform=get_transform(augmentation=True)
+        )
+        val_loader_aug = DataLoader(val_dataset_aug, batch_size=1, shuffle=False, num_workers=0, collate_fn=custom_collate_fn)
+        
+        aug_metrics = evaluate_prompt_strategy(predictor, val_loader_aug, best_prompt, device, val_output_dir)
+        print("Augmented Validation Metrics:", aug_metrics)
+        plot_scores(aug_metrics, f"Validation {best_prompt.capitalize()} Prompt with Augmentation", 
+                    os.path.join(output_root, "val_aug_metrics.png"))
+        
+        baseline_f1 = point_metrics['mean_f1'] if best_prompt == 'point' else box_metrics['mean_f1']
+        use_augmentation = aug_metrics['mean_f1'] > baseline_f1
+        print(f"Using data augmentation: {use_augmentation}")
+        
+        if use_augmentation:
+            train_dataset.transform = get_transform(augmentation=True)
+            train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True, num_workers=0, collate_fn=custom_collate_fn)
+        
+        optimizer = torch.optim.Adam(sam2_model.parameters(), lr=1e-5, weight_decay=1e-4)
+        print("\nTraining SAM2...")
+        train_sam2(predictor, train_loader, optimizer, device, epochs=10, checkpoint_dir=checkpoint_dir)
+        
+        print("\nEvaluating final model on test set...")
+        test_metrics = evaluate_prompt_strategy(predictor, test_loader, best_prompt, device, test_output_dir)
+        print(f"Test Set Metrics with {best_prompt} prompts:")
+        print(f"Mean IoU: {test_metrics['mean_iou']:.4f}")
+        print(f"Mean Precision: {test_metrics['mean_precision']:.4f}")
+        print(f"Mean Recall: {test_metrics['mean_recall']:.4f}")
+        print(f"Mean F1: {test_metrics['mean_f1']:.4f}")
+        
+        plot_scores(test_metrics, f"Test {best_prompt.capitalize()} Prompt Metrics", 
+                    os.path.join(output_root, "test_metrics.png"))
+
+if __name__ == "__main__":
+    main()
